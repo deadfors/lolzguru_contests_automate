@@ -123,7 +123,8 @@ class LolzWorker:
         driver_options = Options()
         driver_options.add_argument('--headless')
         driver_options.add_argument('--disable-gpu')
-        self.driver = webdriver.Chrome(r'.\chromedriver.exe', options=driver_options)
+        driver_options.add_argument("--log-level=3")
+        self.driver = webdriver.Chrome(r'.\chromedriver.exe', options=driver_options,  service_args=["--verbose", "--log-path=D:\\qc1.log"])
         self.login_url = 'https://lolz.guru/login'
         self.contests_url = 'https://lolz.guru/forums/contests/'
         self.links = []
