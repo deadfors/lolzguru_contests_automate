@@ -1,5 +1,5 @@
 # lolzguru_contests_automate
-Автоучастие в розыгрышах lolz.team/lolz.guru
+Автоучастие/Автопринятие розыгрышей lolz.team/lolz.guru
 
 # Requirements
 - [Python](https://www.python.org/downloads/)
