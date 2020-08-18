@@ -1,6 +1,8 @@
 import base64
+import json
 import re
 import time
+import os
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
@@ -15,10 +17,9 @@ import pytesseract
 from PIL import Image
 
 import telegram_listener
-from userdata import USERNAME, PASSWORD
 
 PARTICIPATE_BUTTON_XPATH = "//a[@class='button marginBlock LztContest--Participate']"
-LIKE_BUTTON_XPATH = "//div[@class='LikeLabel']"
+LIKE_BUTTON_XPATH = "//span[@class='icon likeCounterIcon']"
 CAPTCHA_INPUT_FIELD_XPATH = "//input[@name='captcha_question_answer']"
 
 LOGIN_INPUT_FIELD_ID = "ctrl_pageLogin_login"
@@ -34,6 +35,31 @@ FILTER_FLAG_AVAILABLE_CONTESTS_BUTTON_XPATH = "//i[@class='far fa-flag muted']"
 CONTESTS_TITLE_TEXT_XPATH = "//h1[@title='Розыгрыши']"
 
 PYTESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract'
+
+
+def load_data_from_file():
+    result = {}
+    try:
+        if not os.path.exists('data.txt'):
+            with open('data.txt', 'w') as f:
+                f.write('{ "username":"", "password":"", "api_id":"", "api_hash":""}')
+
+        with open('data.txt') as json_file:
+            data = json.load(json_file)
+
+        if 'username' in data:
+            result['username'] = data['username']
+        if 'password' in data:
+            result['password'] = data['password']
+        if 'api_id' in data:
+            result['api_id'] = data['api_id']
+        if 'api_hash' in data:
+            result['api_hash'] = data['api_hash']
+
+    except KeyError as error:
+        print('Cannot find: %s', error.args[0])
+    else:
+        return result['username'], result['password'], result['api_id'], result['api_hash']
 
 
 class ImageWorker:
@@ -123,8 +149,8 @@ class LolzWorker:
         driver_options = Options()
         driver_options.add_argument('--headless')
         driver_options.add_argument('--disable-gpu')
-        driver_options.add_argument("--log-level=3")
-        self.driver = webdriver.Chrome(r'.\chromedriver.exe', options=driver_options,  service_args=["--verbose", "--log-path=D:\\qc1.log"])
+        self.driver = webdriver.Chrome(r'.\chromedriver.exe', options=driver_options,
+                                       service_args=["--verbose", "--log-path=D:\\qc1.log"])
         self.login_url = 'https://lolz.guru/login'
         self.contests_url = 'https://lolz.guru/forums/contests/'
         self.links = []
@@ -242,7 +268,6 @@ class LolzWorker:
                 self.like_contest()
                 participate_button.click()
 
-
             time.sleep(10)
 
     def _parse_captcha_string(self, captcha_string: str) -> int:
@@ -310,7 +335,7 @@ class LolzWorker:
 
 if __name__ == '__main__':
     telegram_listener.client.start()
-
+    USERNAME, PASSWORD, API_ID, API_HASH = load_data_from_file()
     try:
         lolz = LolzWorker()
         lolz.login()
