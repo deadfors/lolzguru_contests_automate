@@ -3,7 +3,7 @@ import re
 import time
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -18,7 +18,7 @@ import telegram_listener
 from userdata import USERNAME, PASSWORD
 
 PARTICIPATE_BUTTON_XPATH = "//a[@class='button marginBlock LztContest--Participate']"
-LIKE_BUTTON_XPATH = "//span[@class='icon likeCounterIcon']"
+LIKE_BUTTON_XPATH = "//div[@class='LikeLabel']"
 CAPTCHA_INPUT_FIELD_XPATH = "//input[@name='captcha_question_answer']"
 
 LOGIN_INPUT_FIELD_ID = "ctrl_pageLogin_login"
@@ -32,6 +32,8 @@ IMAGE_AVATAR_XPATH = "//img[@class='navTab--visitorAvatar']"
 FILTER_FLAG_AVAILABLE_CONTESTS_BUTTON_XPATH = "//i[@class='far fa-flag muted']"
 
 CONTESTS_TITLE_TEXT_XPATH = "//h1[@title='Розыгрыши']"
+
+PYTESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract'
 
 
 class ImageWorker:
@@ -94,7 +96,7 @@ class ImageWorker:
         """
         img = Image.open(self.cropped_captcha_filename)
         config = '--psm 10 --oem 1 -c tessedit_char_whitelist=0123456789+?'
-        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
+        pytesseract.pytesseract.tesseract_cmd = PYTESSERACT_PATH
         return pytesseract.image_to_string(img, config=config)
 
     def process_image(self, base64_string: str) -> str:
@@ -117,12 +119,10 @@ class LolzWorker:
     def __init__(self):
         """
         Constructor.
-        :param USERNAME:
-        :param PASSWORD:
         """
         driver_options = Options()
-        # options.add_argument('--headless')
-        # options.add_argument('--disable-gpu')
+        driver_options.add_argument('--headless')
+        driver_options.add_argument('--disable-gpu')
         self.driver = webdriver.Chrome(r'.\chromedriver.exe', options=driver_options)
         self.login_url = 'https://lolz.guru/login'
         self.contests_url = 'https://lolz.guru/forums/contests/'
@@ -169,6 +169,7 @@ class LolzWorker:
                 EC.presence_of_element_located((By.ID, element_id))
             )
         except TimeoutException as exception:
+            self.driver.save_screenshot("screenshot.png")
             self.driver.quit()
             raise exception
 
@@ -183,8 +184,21 @@ class LolzWorker:
                 EC.presence_of_element_located((By.XPATH, xpath))
             )
         except TimeoutException as exception:
+            self.driver.save_screenshot("screenshot.png")
             self.driver.quit()
             raise exception
+
+    def like_contest(self):
+        """
+        Like contest.
+        """
+        try:
+            like_contest = self._wait_element_visible_XPATH(LIKE_BUTTON_XPATH)
+            like_contest.click()
+        except ElementNotInteractableException as exception:
+            self.driver.save_screenshot("screenshot.png")
+            print('Can`t like')
+            print(exception)
 
     def participate_in_contests(self):
         """
@@ -213,6 +227,8 @@ class LolzWorker:
                 print('Trying to solve captcha.')
                 captcha_result = self._parse_captcha_string(captcha_text)
                 print(f"Captcha: {captcha_text} = {captcha_result}")
+                if captcha_result is None:
+                    continue
 
                 input_captcha_field = self._wait_element_visible_XPATH(CAPTCHA_INPUT_FIELD_XPATH)
                 input_captcha_field.send_keys(captcha_result)
@@ -220,15 +236,15 @@ class LolzWorker:
                 participate_button = self._wait_element_visible_XPATH(PARTICIPATE_BUTTON_XPATH)
                 actions = ActionChains(self.driver)
                 actions.move_to_element(participate_button).perform()
+                time.sleep(1)
+                #  You can comment this line if you want.
+                self.like_contest()
                 participate_button.click()
 
-                # Like contest. You can comment this lines if you want
-                like_contest = self._wait_element_visible_XPATH(LIKE_BUTTON_XPATH)
-                like_contest.click()
+
             time.sleep(10)
 
-    @staticmethod
-    def _parse_captcha_string(captcha_string: str) -> int:
+    def _parse_captcha_string(self, captcha_string: str) -> int:
         """
         Get captcha string. Get two digits from string and
         :param captcha_string:
@@ -242,7 +258,9 @@ class LolzWorker:
             list_digits = captcha_string.split('+')
             print(list_digits)
         except (ValueError, IndexError) as exception:
-            raise exception
+            self.driver.save_screenshot("screenshot.png")
+            print('Cant recognize captcha')
+            print(exception)
         else:
             return int(list_digits[0]) + int(list_digits[1])
 
@@ -298,6 +316,3 @@ if __name__ == '__main__':
         lolz.participate_in_contests()
     except KeyboardInterrupt as exception:
         print('BB')
-
-
-
