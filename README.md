@@ -29,6 +29,7 @@
 11. Enter `py main.py`
 
 First start program will ask you for login into telegram
+
 <img src="https://i.imgur.com/pYNihZF.png">
 
 
