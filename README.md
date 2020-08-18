@@ -9,7 +9,7 @@
 # Installation/Setup
 1. Download this repository
 2. Donwload [pytesseract](https://github.com/UB-Mannheim/tesseract/wiki)
-3. Copy path **pytesseract** path folder and paste into **main.py**
+3. Copy path **pytesseract path** folder and paste into **main.py**
 <img src="https://i.imgur.com/n4mG01l.png">
 
 ### Telegram setup
