@@ -8,9 +8,9 @@
 
 # Installation/Setup
 1. Download this repository
-2. Donwload [pytesseract](https://github.com/UB-Mannheim/tesseract/wiki) for your system
+2. Donwload [pytesseract](https://github.com/UB-Mannheim/tesseract/wiki)
 3. Copy path **pytesseract** path folder and paste into **main.py**
-<imt src="https://i.imgur.com/n4mG01l.png">
+<img src="https://i.imgur.com/n4mG01l.png">
 
 ### Telegram setup
 4. Login at [telegram](https://my.telegram.org/apps)
