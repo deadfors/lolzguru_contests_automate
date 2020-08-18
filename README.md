@@ -22,7 +22,7 @@
 <img src="https://i.imgur.com/CfHYm2Y.png">
 
 8. Get your chrome [version](https://www.whatismybrowser.com/detect/what-version-of-chrome-do-i-have) then download [chrome driver](https://chromedriver.chromium.org/downloads)
-<img src="https://i.imgur.com/e4FJIS5.png">
+[<img src="https://i.imgur.com/e4FJIS5.png">](https://chromedriver.chromium.org/downloads)
 
 9. Open a command prompt **inside** the folder
 10. Enter `py pip install -r requirements.txt`
