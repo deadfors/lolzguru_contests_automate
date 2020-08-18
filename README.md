@@ -21,7 +21,7 @@
 7. Set the **username** and **password**
 <img src="https://i.imgur.com/CfHYm2Y.png">
 
-8. Get your chrome [version](https://www.whatismybrowser.com/detect/what-version-of-chrome-do-i-have) then download your [chrome driver](https://chromedriver.chromium.org/downloads)
+8. Get your chrome [version](https://www.whatismybrowser.com/detect/what-version-of-chrome-do-i-have) then download [chrome driver](https://chromedriver.chromium.org/downloads)
 <img src="https://i.imgur.com/e4FJIS5.png">
 
 9. Open a command prompt **inside** the folder
